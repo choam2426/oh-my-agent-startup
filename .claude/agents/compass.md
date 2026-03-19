@@ -104,19 +104,34 @@ Save all IDs to `workspace/.linear-config.json` for reference throughout the ses
      - `[architecture] Tech stack decision`
 
 ### Phase 2: MVP Build
-For **each** feature issue (work through them one by one):
-5. Move issue to **Todo**
-6. Spawn **Palette** with the issue ID → Palette posts design spec as comment
-7. Move issue to **In Progress**
-8. Spawn **Pixel** and/or **Circuit** with the issue ID → they read Palette's comment, implement, post completion comment
-9. **Read issue comments** — check for @mentions or questions between agents. If found, re-spawn the mentioned agent to respond.
-10. Move issue to **In Review** → spawn **Forge** with the issue ID → Forge reads all comments, posts code review
-11. Move issue to **Testing** → spawn **Sentinel** with the issue ID → Sentinel posts QA report as comment
-12. **Read Sentinel's comment** — if bugs mentioned with @mentions, re-spawn agents to fix, then re-test
-13. All pass → move issue to **Done**
-14. Repeat 5-13 for each feature
 
-**Every spawn must include the issue ID so the agent can read/write comments on it.**
+**For EACH feature issue**, execute this exact sequence. `$ID` = issue identifier (e.g. MY-26), `$UUID` = issue UUID.
+
+```
+Step A: Design
+  → Run: python "$CLI" update-issue --id "$ID" --input '{"stateId":"<In Progress state ID>"}'
+  → Spawn Palette with issue ID → Palette posts design spec as comment
+
+Step B: Implement
+  → Spawn Pixel and/or Circuit with issue ID → they read Palette's comment, implement, post comment
+
+Step C: Review
+  → Run: python "$CLI" update-issue --id "$ID" --input '{"stateId":"<In Review state ID>"}'
+  → Spawn Forge with issue ID → Forge reviews code, posts comment
+  → If Forge requests fixes: re-spawn Pixel/Circuit, then back to Step C
+
+Step D: Test
+  → Run: python "$CLI" update-issue --id "$ID" --input '{"stateId":"<Testing state ID>"}'
+  → Spawn Sentinel with issue ID → Sentinel tests, posts QA report
+  → If Sentinel finds bugs: move back to In Progress, re-spawn Pixel/Circuit, then back to Step D
+
+Step E: Done
+  → Run: python "$CLI" update-issue --id "$ID" --input '{"stateId":"<Done state ID>"}'
+```
+
+**CRITICAL: You MUST run the `update-issue` command at each step. This is not optional. If you skip status updates, the Linear board becomes useless.**
+
+Repeat Steps A-E for each feature issue before moving to Phase 3.
 
 ### Phase 3: Polish
 14. Spawn **Pipeline** → verify build, set up deployment
