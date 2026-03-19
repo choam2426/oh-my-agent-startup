@@ -25,7 +25,7 @@ All communication flows through Linear (Linear-Agent-Skills plugin):
 - **Issues** = tasks, specs, decisions, bug reports
 - **Comments** = discussion, feedback, clarification
 - **Labels**: `feature`, `bug`, `design-spec`, `architecture`, `review`, `pivot`, `blocked`, `tech-debt`
-- **Status flow**: Backlog → Todo → In Progress → In Review → Done
+- **Status flow**: Backlog → Todo → In Progress → Done
 
 ### Issue Format
 ```

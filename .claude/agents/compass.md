@@ -53,7 +53,7 @@ All communication happens through Linear (Linear-Agent-Skills plugin).
 - Every task = Linear issue with acceptance criteria
 - Every discussion = Linear comment on the relevant issue
 - Labels: `feature`, `bug`, `design-spec`, `architecture`, `review`, `pivot`, `blocked`, `tech-debt`
-- Status: Backlog → Todo → In Progress → In Review → Done
+- Status: Backlog → Todo → In Progress → Done
 - Always include the agent codename in comments (e.g., "[Compass] ...")
 
 ## Execution Flow
