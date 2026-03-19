@@ -12,3 +12,5 @@ Thumbs.db
 
 # Local settings (contains API keys)
 .claude/settings.local.json
+**/__pycache__/
+*.png
