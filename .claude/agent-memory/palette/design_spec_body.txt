@@ -1,0 +1,361 @@
+[Palette] Design Spec: Todo List Web App
+
+## Design Spec: Todo List Web App
+
+### User Flow
+
+1. User opens the app — sees the page title, an input form, and either a populated list or an empty state message
+2. User types a task into the text input and presses Enter or clicks the Add button
+3. New task appears at the top of the list, input clears, focus returns to the input
+4. User clicks the checkbox on a task to mark it complete — item gets strikethrough styling, checkbox fills indigo
+5. User clicks the delete button on a task — item is removed immediately
+6. User filters tasks via three tabs: All / Active / Completed
+7. Footer shows a live count of remaining active tasks
+8. When the last task is deleted, the list area shows a context-aware empty state message
+
+---
+
+### Layout
+
+Single-column centered layout. Max width 600px, centered horizontally. The app sits inside a card-style container with subtle elevation. Page background is a neutral off-white.
+
+Top-to-bottom structure:
+- Page header: app title (h1)
+- Add-task form: text input + submit button, full width of card
+- Filter tabs: All / Active / Completed
+- Todo list: scrollable ul, natural height
+- Footer bar: remaining task count (left) + clear completed button (right)
+- Empty state: centered message inside the list area when list is empty
+
+**Mobile** (< 480px): card fills full viewport width, no border-radius, side padding 16px.
+**Desktop** (>= 480px): card is centered, border-radius 12px, side padding 24px, drop shadow.
+
+---
+
+### CSS Custom Properties (Design Tokens)
+
+All tokens live on `:root` in `styles.css`. Pixel must reference these variables everywhere — no raw hex or px values in component rules.
+
+```css
+:root {
+  /* Colors */
+  --color-bg: #f5f5f0;
+  --color-surface: #ffffff;
+  --color-border: #e0e0dc;
+  --color-border-focus: #6366f1;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #737373;
+  --color-text-placeholder: #a3a3a3;
+  --color-accent: #6366f1;
+  --color-accent-hover: #4f46e5;
+  --color-accent-light: #eef2ff;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-completed-text: #a3a3a3;
+  --color-completed-line: #d4d4d4;
+
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-input-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+
+  /* Transitions */
+  --transition-fast: 120ms ease;
+  --transition-normal: 200ms ease;
+}
+```
+
+---
+
+### Typography
+
+| Use | Size | Weight | Color |
+|-----|------|--------|-------|
+| App title (h1) | `--font-size-xl` | bold | `--color-text-primary` |
+| Filter tab labels | `--font-size-sm` | medium | `--color-text-secondary` / accent when active |
+| Todo item text | `--font-size-base` | normal | `--color-text-primary` |
+| Completed todo | `--font-size-base` | normal | `--color-completed-text`, line-through |
+| Footer / meta text | `--font-size-sm` | normal | `--color-text-secondary` |
+| Empty state | `--font-size-sm` | normal | `--color-text-secondary`, italic |
+
+---
+
+### Component Specs
+
+#### Page Shell
+
+```css
+.page-wrapper {
+  background: var(--color-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.app-card {
+  background: var(--color-surface);
+  width: 100%;
+  max-width: 600px;
+  overflow: hidden;
+  /* border-radius and box-shadow added at 480px breakpoint */
+}
+```
+
+#### Add Task Form
+
+- Input height: 44px (touch target minimum)
+- Border: `1.5px solid var(--color-border)`
+- Focus: border-color switches to `--color-border-focus`, adds `--shadow-input-focus`
+- Error state: `.is-error` class adds red border + shake animation (keyframe below), removed after 600ms via `setTimeout`, focus returned to input
+
+```css
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
+
+.todo-input.is-error {
+  border-color: var(--color-danger);
+  animation: shake 200ms ease;
+}
+```
+
+- Submit button: 44px height, `--color-accent` background, white text, hover uses `--color-accent-hover`
+- Button label text: "Add" — explicit text, no icon only
+
+#### Filter Tabs
+
+Three equal-width buttons inside `.filter-bar`. Divided from form and list by 1px top/bottom borders.
+
+- Default: `--color-text-secondary`, transparent background
+- Hover: `--color-accent-light` background, `--color-text-primary`
+- Active (`.is-active`): `--color-accent` text, `--color-accent-light` background
+- JS: set `aria-pressed="true"` on active button, `"false"` on others
+
+#### Todo List (`<ul>`)
+
+- `list-style: none`, margin/padding 0
+- Each `<li>` is a flex row: `[checkbox] [text] [delete button]`
+- `gap: var(--space-3)` between flex children
+- `padding: var(--space-4) var(--space-6)` per item
+- 1px bottom border on each item except last
+- Hover background: `#fafafa`
+
+#### Checkbox
+
+Use a real `<input type="checkbox">` styled with `appearance: none`. Native keyboard behavior must be preserved — do not intercept keydown events.
+
+- Default: 20×20px, `2px solid var(--color-border)`, `border-radius: var(--radius-sm)`
+- Checked: `--color-accent` fill and border, white checkmark via `::after` pseudo-element (8×12px rectangle, rotated 45deg, white 2px border, border-top and border-left removed)
+- Focus-visible: `outline: 3px solid var(--color-border-focus)`, `outline-offset: 2px`
+
+#### Delete Button
+
+- 32×32px, transparent background, no border, `border-radius: var(--radius-sm)`
+- Inner content: Unicode `&#215;` (×) as text node — no SVG or img
+- `opacity: 0` by default; revealed on `.todo-item:hover` and on `:focus-visible`
+- Hover: `--color-danger` text, `#fee2e2` background
+- `aria-label="Delete task"` required on every delete button
+
+#### Empty State
+
+`<p class="empty-state">` rendered inside `<ul>` when list is empty.
+- Flex centered, `padding: var(--space-8) var(--space-6)`
+- Italic, `--color-text-secondary`, `--font-size-sm`
+
+Context-aware copy:
+- All filter, no tasks: "No tasks yet. Add one above."
+- Active filter, no active tasks: "No active tasks. You're all done!"
+- Completed filter, no completed tasks: "No completed tasks yet."
+
+#### Footer
+
+- Flex row, `justify-content: space-between`, `align-items: center`
+- `padding: var(--space-3) var(--space-6)`, `min-height: 44px`
+- 1px top border
+
+Task count (`<span aria-live="polite">`):
+- Copy: "1 task left" / "N tasks left" / "0 tasks left"
+
+Clear completed (`<button>`):
+- `display: none` when no completed tasks exist; `display: inline-block` when at least one exists
+- Hover: `--color-danger` text
+
+---
+
+### Responsive Behavior
+
+Mobile-first. Single breakpoint at 480px.
+
+```css
+/* Mobile base (default) */
+.page-wrapper {
+  padding: 0;
+}
+.app-card {
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 100vh;
+}
+
+/* Desktop */
+@media (min-width: 480px) {
+  .page-wrapper {
+    padding: var(--space-8) var(--space-4);
+  }
+  .app-card {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    min-height: auto;
+  }
+}
+```
+
+Padding for internal sections:
+- Mobile: `--space-4` (16px) horizontal padding
+- Desktop: `--space-6` (24px) horizontal padding
+
+Use a separate media query to toggle this on `.app-header`, `.add-form`, `.todo-item`, `.todo-footer`.
+
+---
+
+### States Summary
+
+| State | Treatment |
+|-------|-----------|
+| Loading | Not applicable — localStorage is synchronous; render on DOMContentLoaded |
+| Empty list | `.empty-state` paragraph shown in list area, context-aware copy per active filter |
+| Empty input error | `.is-error` on input → red border + shake, removed after 600ms, focus returned |
+| Completed item | `.is-completed` on `<li>` → strikethrough text, muted color, filled checkbox |
+| Active filter tab | `.is-active` + `aria-pressed="true"` on active tab; JS handles toggling |
+| Clear completed | Button hidden until at least one completed task exists |
+
+---
+
+### Accessibility Requirements
+
+- Semantic HTML: `<main>`, `<h1>`, `<form>`, `<ul>`, `<li>`, `<button>`, `<label>`
+- Every `<input>` has an associated `<label>` — visually hidden with `.sr-only` is acceptable
+- `.sr-only` utility (include in styles.css):
+  ```css
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  ```
+- Delete button: `aria-label="Delete task"` — icon-only buttons require a text label
+- Filter buttons: `aria-pressed` attribute toggled in JS on click
+- Checkbox: native `<input type="checkbox">` — no custom keydown interception
+- Task count: `aria-live="polite"` — screen readers announce count changes
+- Focus order: title → input → add button → filter tabs → todo items (checkbox, delete) → footer buttons
+- Never use `outline: none` without a visible custom replacement
+- Contrast ratios:
+  - `--color-text-primary` (#1a1a1a) on white: 18.1:1 — AAA
+  - `--color-text-secondary` (#737373) on white: 4.6:1 — AA
+  - `--color-accent` (#6366f1) is used only for interactive elements, not body text
+
+---
+
+### HTML Structure Reference
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Tasks</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="app-card">
+      <header class="app-header">
+        <h1 class="app-title">My Tasks</h1>
+      </header>
+
+      <form class="add-form" id="add-form">
+        <label for="todo-input" class="sr-only">New task</label>
+        <input
+          class="todo-input"
+          id="todo-input"
+          type="text"
+          placeholder="What needs to be done?"
+          autocomplete="off"
+          maxlength="500"
+        />
+        <button class="add-button" type="submit">Add</button>
+      </form>
+
+      <div class="filter-bar" role="group" aria-label="Filter tasks">
+        <button class="filter-btn is-active" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter-btn" data-filter="active" aria-pressed="false">Active</button>
+        <button class="filter-btn" data-filter="completed" aria-pressed="false">Completed</button>
+      </div>
+
+      <ul class="todo-list" id="todo-list" aria-label="Task list">
+        <!-- render.js injects .todo-item <li> elements here -->
+        <!-- or a .empty-state <p> when the list is empty -->
+      </ul>
+
+      <footer class="todo-footer">
+        <span class="task-count" id="task-count" aria-live="polite">0 tasks left</span>
+        <button class="clear-completed-btn" id="clear-completed">Clear completed</button>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
+```
+
+Each todo item rendered by `render.js`:
+```html
+<li class="todo-item [is-completed]" data-id="{{id}}">
+  <input
+    class="todo-checkbox"
+    type="checkbox"
+    aria-label="Mark complete: {{text}}"
+    [checked if completed]
+  />
+  <span class="todo-text">{{text}}</span>
+  <button class="delete-btn" aria-label="Delete task">&#215;</button>
+</li>
+```
+
+Add `.is-completed` to the `<li>` when the todo's `completed` property is `true`.
