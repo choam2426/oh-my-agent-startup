@@ -71,15 +71,23 @@ python "$LINEAR_CLI" list-issue-statuses --name "$TEAM_NAME"
 python "$LINEAR_CLI" list-issue-labels --team "$TEAM_NAME"
 ```
 
-Save these IDs to `workspace/.linear-config.json` so you can reference them throughout the session:
+Then **create a Project** for this mission (one project per mission):
+```bash
+python "$LINEAR_CLI" save-project --input "{\"name\":\"<Mission Short Name>\",\"teamIds\":[\"$TEAM_ID\"]}"
+```
+
+Save all discovered IDs + project ID to `workspace/.linear-config.json`:
 ```json
 {
   "team_id": "<from list-teams>",
   "team_name": "<from list-teams>",
+  "project_id": "<from save-project>",
   "states": { "Backlog": "<id>", "Todo": "<id>", "In Progress": "<id>", "In Review": "<id>", "Testing": "<id>", "Done": "<id>" },
   "labels": { "Feature": "<id>", "Bug": "<id>", "design-spec": "<id>", "architecture": "<id>", ... }
 }
 ```
+
+**All issues for this mission must be linked to the project** using `--project-id`.
 
 ### Linear CLI Commands
 
@@ -88,7 +96,7 @@ Save these IDs to `workspace/.linear-config.json` so you can reference them thro
 export $(grep -v '^#' .env | xargs) && python "$LINEAR_CLI" <command> [flags]
 ```
 
-**Create issue:** `create-issue --title "..." --team-id $TEAM_ID --description "..." --priority 2 --label-ids "<label-id>" --state-id "<todo-state-id>"`
+**Create issue:** `create-issue --title "..." --team-id $TEAM_ID --description "..." --priority 2 --label-ids "<label-id>" --state-id "<todo-state-id>" --project-id "<project-id>"`
 
 **Update status:** `update-issue --id "MY-6" --input '{"stateId":"<state-id>"}'`
 
