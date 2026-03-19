@@ -5,8 +5,8 @@ description: Startup-specific conventions for using Linear — labels, comment f
 
 # Linear Communication Rules
 
-Use the `linear-cli` skill from the Linear-Agent-Skills plugin for all Linear operations.
-This skill only defines **startup-specific conventions** on top of that.
+Use the Linear-Agent-Skills plugin CLI for all Linear operations.
+IDs are discovered dynamically at startup — see Compass bootstrap step.
 
 ## Labels — When to Use What
 

@@ -48,69 +48,56 @@ They encode proven PM frameworks from Teresa Torres, Marty Cagan, and others.
 
 ## Communication Protocol — Linear
 
-All communication happens through Linear. Use the CLI directly via Bash:
+All communication happens through Linear. Use the CLI via Bash.
+
+### Step 0: Bootstrap Linear (run once at start)
+
+Before any work, discover the Linear workspace dynamically:
 
 ```bash
-# Set this at the start of every Linear command:
-export $(grep -v '^#' .env | xargs) && python "C:/Users/choam/.claude/plugins/cache/Linear-Agent-Skills/Linear-Agent-Skills/2.0.0/skills/linear-cli/scripts/linear_cli.py" <command> [flags]
+# Find the CLI path
+LINEAR_CLI=$(find ~/.claude/plugins -name "linear_cli.py" -path "*/Linear-Agent-Skills/*" 2>/dev/null | head -1)
+
+# Load API key and get team info
+export $(grep -v '^#' .env | xargs)
+TEAM_JSON=$(python "$LINEAR_CLI" list-teams)
+TEAM_ID=$(echo "$TEAM_JSON" | python -c "import sys,json; print(json.load(sys.stdin)['teams']['nodes'][0]['id'])")
+TEAM_NAME=$(echo "$TEAM_JSON" | python -c "import sys,json; print(json.load(sys.stdin)['teams']['nodes'][0]['name'])")
+
+# Get workflow state IDs
+python "$LINEAR_CLI" list-issue-statuses --name "$TEAM_NAME"
+
+# Get label IDs
+python "$LINEAR_CLI" list-issue-labels --team "$TEAM_NAME"
 ```
 
-### Quick Reference — Linear CLI Commands
+Save these IDs to `workspace/.linear-config.json` so you can reference them throughout the session:
+```json
+{
+  "team_id": "<from list-teams>",
+  "team_name": "<from list-teams>",
+  "states": { "Backlog": "<id>", "Todo": "<id>", "In Progress": "<id>", "In Review": "<id>", "Testing": "<id>", "Done": "<id>" },
+  "labels": { "Feature": "<id>", "Bug": "<id>", "design-spec": "<id>", "architecture": "<id>", ... }
+}
+```
 
-**Create an issue:**
+### Linear CLI Commands
+
 ```bash
-export $(grep -v '^#' .env | xargs) && python "C:/Users/choam/.claude/plugins/cache/Linear-Agent-Skills/Linear-Agent-Skills/2.0.0/skills/linear-cli/scripts/linear_cli.py" create-issue \
-  --title "[Feature] Add todo item" \
-  --team-id "65aa8e95-f699-4393-a853-3ef949cc6a2e" \
-  --description "Context and acceptance criteria here" \
-  --priority 2 \
-  --label-ids "07920b99-d053-4117-957b-035dead57684" \
-  --state-id "281b0243-c11e-4b51-b7d9-3c04f5348424"
+# Helper: run any Linear CLI command (always from project root)
+export $(grep -v '^#' .env | xargs) && python "$LINEAR_CLI" <command> [flags]
 ```
 
-**Update issue status:**
-```bash
-# To In Progress:
-... update-issue --id "MY-6" --input '{"stateId":"e96f21fa-d9e4-462b-9bc7-026a14ff5336"}'
-# To In Review:
-... update-issue --id "MY-6" --input '{"stateId":"06f8eaf8-bb57-4f8a-a926-229e0a607123"}'
-# To Testing:
-... update-issue --id "MY-6" --input '{"stateId":"ef181ba0-4fe8-41fa-b39b-c336e4baa95b"}'
-# To Done:
-... update-issue --id "MY-6" --input '{"stateId":"e77572d2-9fcd-42db-a640-f967f4e7750c"}'
-```
+**Create issue:** `create-issue --title "..." --team-id $TEAM_ID --description "..." --priority 2 --label-ids "<label-id>" --state-id "<todo-state-id>"`
 
-**Add a comment:**
-```bash
-... save-comment --input '{"issueId":"<issue-uuid>","body":"[Compass] Moving to implementation."}'
-```
+**Update status:** `update-issue --id "MY-6" --input '{"stateId":"<state-id>"}'`
 
-**List issues:**
-```bash
-... list-issues --team "My-agent-workspace"
-```
+**Add comment:** `save-comment --input '{"issueId":"<issue-uuid>","body":"[Compass] ..."}'`
 
-### IDs Reference
-
-| Resource | ID |
-|----------|-----|
-| Team | `65aa8e95-f699-4393-a853-3ef949cc6a2e` |
-| Backlog | `e5d23a54-7937-4bb3-9efc-cf56a37e058c` |
-| Todo | `281b0243-c11e-4b51-b7d9-3c04f5348424` |
-| In Progress | `e96f21fa-d9e4-462b-9bc7-026a14ff5336` |
-| In Review | `06f8eaf8-bb57-4f8a-a926-229e0a607123` |
-| Testing | `ef181ba0-4fe8-41fa-b39b-c336e4baa95b` |
-| Done | `e77572d2-9fcd-42db-a640-f967f4e7750c` |
-| Label: Feature | `07920b99-d053-4117-957b-035dead57684` |
-| Label: Bug | `765a0eb7-8bcd-44be-a323-8a7782eed1c2` |
-| Label: design-spec | `a53439ff-d6cc-4e93-82d7-00cfa10da438` |
-| Label: architecture | `dab68384-4fd6-4ab2-bd04-44e902ea475d` |
-| Label: review | `420e5cf7-d7bd-4aa5-8b74-7b4bab1d59c1` |
-| Label: pivot | `d9e11ed4-9a24-47d5-bc25-a00626733761` |
-| Label: blocked | `3dbafa3c-140d-4e4e-9ddc-0af3403002fd` |
-| Label: tech-debt | `ddc6bbb4-5ac0-4f2b-8dcb-1d8f9a437d68` |
+**List issues:** `list-issues --team "$TEAM_NAME"`
 
 ### Rules
+- **YOU MUST run the Bootstrap step at the very start to discover IDs dynamically.**
 - Every task = Linear issue with acceptance criteria
 - Every discussion = Linear comment on the relevant issue
 - Status flow: **Backlog → Todo → In Progress → In Review → Testing → Done**
