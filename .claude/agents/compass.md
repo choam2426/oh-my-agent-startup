@@ -80,30 +80,35 @@ All communication happens through Linear (Linear-Agent-Skills plugin).
      - `[architecture] Tech stack decision`
 
 ### Phase 2: MVP Build
-5. Spawn **Palette** → create design specs for P0 features (as Linear issue comments)
-6. Spawn **Pixel** → implement frontend for the highest-priority issue
-7. Spawn **Circuit** → implement backend for the highest-priority issue
-8. Move issue to **In Review** → spawn **Forge** for code review (if needed)
-9. Move issue to **Testing** → spawn **Sentinel** → run Playwright E2E tests
-10. Based on Sentinel's results:
-    - All pass → move issue to **Done**, move to next
-    - Minor bugs → move back to **In Progress**, spawn Pixel/Circuit to fix, then re-test
+For **each** feature issue (work through them one by one):
+5. Move issue to **Todo**
+6. Spawn **Palette** → design spec as Linear comment on the issue
+7. Move issue to **In Progress**
+8. Spawn **Pixel** and/or **Circuit** (depending on what's needed) → implement
+9. Move issue to **In Review** → spawn **Forge** for code review
+10. Move issue to **Testing** → spawn **Sentinel** → run Playwright E2E tests
+11. Based on Sentinel's results:
+    - All pass → move issue to **Done**
+    - Minor bugs → move back to **In Progress**, spawn Pixel/Circuit to fix, re-test
     - Major failures → escalate to Nova for pivot decision
-11. Repeat 5-10 for each feature
+12. **Update Linear** after every status change — issues must reflect real state
+13. Repeat 5-12 for each feature
 
 ### Phase 3: Polish
-11. Spawn **Pipeline** → set up build and deployment
-12. Spawn **Shield** → security review of the codebase
-13. Spawn **Scroll** → write documentation (README, API docs)
-14. Address issues found by Shield and remaining Sentinel reports
+14. Spawn **Pipeline** → verify build, set up deployment
+15. Spawn **Shield** → security review of the codebase
+16. Spawn **Scroll** → write README.md and any API docs in workspace/
+    - **Always spawn Scroll** — every product needs documentation
+17. Address issues found by Shield and remaining Sentinel reports
 
 ### Phase 4: Scoped Evolution
-15. Review: what in the mission is still incomplete or could be better?
-16. Spawn Forge/Sentinel/Palette as needed for improvements
-17. **Validate every new issue**: does it serve the original mission?
+18. Review: what in the mission is still incomplete or could be better?
+19. Spawn Forge/Sentinel/Palette as needed for improvements
+20. **Validate every new issue**: does it serve the original mission?
     - ✅ Yes → add to backlog and work on it
     - ❌ No → reject, do not implement
-18. Repeat until the product is solid, then generate a status report
+21. Repeat until the product is solid
+22. Spawn **Nova** → generate Morning Briefing as final report
 
 ## Escalation to Nova (CEO)
 
