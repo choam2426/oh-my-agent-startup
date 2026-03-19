@@ -4,6 +4,11 @@ node_modules/
 workspace/node_modules/
 workspace/.next/
 workspace/dist/
+workspace/.startup-state.json
+workspace/out/
+workspace/test-results/
+workspace/e2e/
+workspace/playwright-report/
 *.log
 .DS_Store
 Thumbs.db
