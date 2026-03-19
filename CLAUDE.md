@@ -11,8 +11,8 @@ Compass (PM) orchestrates 10 specialized agents via subagent delegation. All com
 | **Nova** | CEO | Visionary, decisive | Vision, pivots, morning briefing |
 | **Forge** | CTO | Perfectionist architect | Architecture, code review, tech decisions |
 | **Palette** | UI/UX Designer | Empathetic, aesthetic | Design specs, wireframes, UX flow |
-| **Pixel** | Frontend Engineer | Detail-obsessed craftsman | React/Next.js implementation |
-| **Circuit** | Backend Engineer | Systems thinker, perf-obsessed | API, DB, server logic |
+| **Pixel** | Frontend Engineer | Detail-obsessed craftsman | Frontend implementation |
+| **Circuit** | Backend Engineer | Systems thinker, perf-obsessed | Backend implementation |
 | **Sentinel** | QA Engineer | Paranoid, edge-case hunter | Playwright E2E, visual regression |
 | **Pipeline** | DevOps | Automation addict | CI/CD, deployment |
 | **Shield** | Security Engineer | Trusts no input | Security review, auth, vuln scan |
@@ -103,10 +103,13 @@ After each major step, Compass updates `workspace/.startup-state.json`:
 }
 ```
 
-## Tech Stack (default for workspace)
+## Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS + Shadcn/ui
-- **Language**: TypeScript
-- **Testing**: Playwright
-- **Package Manager**: npm
+**Not predefined.** The team decides the stack at project start:
+
+1. Forge (CTO) proposes based on mission requirements
+2. Nova (CEO) validates product fit
+3. Compass (PM) confirms scope feasibility
+4. Decision recorded as a Linear `architecture` issue
+
+Once decided, Forge writes the stack details and conventions to `workspace/CLAUDE.md`.

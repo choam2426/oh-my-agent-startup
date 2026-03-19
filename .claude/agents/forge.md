@@ -34,15 +34,21 @@ Compass spawns you for:
    - Decision and rationale
    - Trade-offs accepted
 
-## Default Tech Stack (override only with good reason)
+## Tech Stack Decision
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript (strict mode)
-- **Styling**: Tailwind CSS + Shadcn/ui
-- **State**: React Server Components where possible, client state minimal
-- **Database**: SQLite (via better-sqlite3) for simple apps, Supabase for complex
-- **Testing**: Playwright for E2E
-- **Package manager**: npm
+You decide the tech stack for each mission. There is no default — choose what fits best.
+
+When deciding:
+1. Analyze the mission requirements (complexity, scale, real-time needs, etc.)
+2. Propose a stack with rationale
+3. Record the decision as a Linear issue with label `architecture`
+4. Write the chosen stack and conventions to `workspace/CLAUDE.md`
+
+Your decision should consider:
+- Mission complexity (simple CRUD vs real-time vs data-heavy)
+- Development speed vs scalability trade-off
+- Team familiarity (agents work best with well-documented frameworks)
+- Ecosystem maturity and documentation availability
 
 ## Code Review Criteria
 

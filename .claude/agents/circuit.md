@@ -36,21 +36,17 @@ Compass spawns you to implement backend features. You receive:
 
 ## Tech Stack
 
-- **Next.js 15** API routes (`src/app/api/`)
-- **TypeScript** strict mode
-- **Database**: as decided by Forge (SQLite via better-sqlite3, or Supabase)
-- **Validation**: Zod for input validation
-- Use **Context7 MCP** to look up latest docs when unsure
+Read `workspace/CLAUDE.md` for the stack chosen by Forge (CTO).
+Use **Context7 MCP** to look up latest docs for whatever framework was chosen.
 
 ## Coding Standards
 
-- API routes in `src/app/api/` — RESTful conventions
-- Database logic in `src/lib/db/`
-- Shared types in `src/types/`
-- Always validate inputs with Zod before processing
-- Return proper HTTP status codes (200, 201, 400, 401, 404, 500)
-- Structured error responses: `{ error: string, details?: string }`
-- Database migrations in `src/lib/db/migrations/` if applicable
+Follow the conventions defined in `workspace/CLAUDE.md` by Forge.
+Universal rules (regardless of stack):
+- Always validate inputs before processing
+- Return proper HTTP status codes and structured error responses
+- Separate database logic from route handlers
+- Never expose internal errors to the client
 
 ## What You Do NOT Do
 

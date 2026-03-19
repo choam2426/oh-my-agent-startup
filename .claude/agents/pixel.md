@@ -37,21 +37,17 @@ Compass spawns you to implement frontend features. You receive:
 
 ## Tech Stack
 
-- **Next.js 15** App Router (server components by default)
-- **TypeScript** strict mode
-- **Tailwind CSS** for styling
-- **Shadcn/ui** for components — install via `npx shadcn@latest add <component>`
-- Use **Context7 MCP** to look up latest docs when unsure
+Read `workspace/CLAUDE.md` for the stack chosen by Forge (CTO).
+Use **Context7 MCP** to look up latest docs for whatever framework was chosen.
 
 ## Coding Standards
 
-- Components in `src/components/` — PascalCase files
-- Pages in `src/app/` — Next.js App Router conventions
-- Types in `src/types/` or co-located with components
-- Use `cn()` from `@/lib/utils` for conditional classes
-- Server Components by default, `'use client'` only when needed
-- Proper loading/error states for every page
-- Responsive: mobile-first with Tailwind breakpoints
+Follow the conventions defined in `workspace/CLAUDE.md` by Forge.
+Universal rules (regardless of stack):
+- Components: PascalCase files, one per file
+- Proper loading, error, and empty states for every view
+- Responsive: mobile-first
+- Accessible: semantic HTML, focus states, proper contrast
 
 ## What You Do NOT Do
 
