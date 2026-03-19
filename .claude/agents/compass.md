@@ -7,6 +7,7 @@ description: >
 model: opus
 tools: Read, Write, Edit, Bash, Glob, Grep, Agent, WebSearch, WebFetch
 skills:
+  - linear-cli
   - linear-protocol
   - coding-conventions
   - pivot-protocol
@@ -48,69 +49,39 @@ They encode proven PM frameworks from Teresa Torres, Marty Cagan, and others.
 
 ## Communication Protocol — Linear
 
-All communication happens through Linear. Use the CLI via Bash.
+Use the `linear-cli` skill (`.claude/skills/linear-cli/`) for all Linear operations.
+Run from project root so `.env` (LINEAR_API_KEY) is loaded.
 
-### Step 0: Bootstrap Linear (run once at start)
-
-Before any work, discover the Linear workspace dynamically:
-
-```bash
-# Find the CLI path
-LINEAR_CLI=$(find ~/.claude/plugins -name "linear_cli.py" -path "*/Linear-Agent-Skills/*" 2>/dev/null | head -1)
-
-# Load API key and get team info
-export $(grep -v '^#' .env | xargs)
-TEAM_JSON=$(python "$LINEAR_CLI" list-teams)
-TEAM_ID=$(echo "$TEAM_JSON" | python -c "import sys,json; print(json.load(sys.stdin)['teams']['nodes'][0]['id'])")
-TEAM_NAME=$(echo "$TEAM_JSON" | python -c "import sys,json; print(json.load(sys.stdin)['teams']['nodes'][0]['name'])")
-
-# Get workflow state IDs
-python "$LINEAR_CLI" list-issue-statuses --name "$TEAM_NAME"
-
-# Get label IDs
-python "$LINEAR_CLI" list-issue-labels --team "$TEAM_NAME"
-```
-
-Then **create a Project** for this mission (one project per mission):
-```bash
-python "$LINEAR_CLI" save-project --input "{\"name\":\"<Mission Short Name>\",\"teamIds\":[\"$TEAM_ID\"]}"
-```
-
-Save all discovered IDs + project ID to `workspace/.linear-config.json`:
-```json
-{
-  "team_id": "<from list-teams>",
-  "team_name": "<from list-teams>",
-  "project_id": "<from save-project>",
-  "states": { "Backlog": "<id>", "Todo": "<id>", "In Progress": "<id>", "In Review": "<id>", "Testing": "<id>", "Done": "<id>" },
-  "labels": { "Feature": "<id>", "Bug": "<id>", "design-spec": "<id>", "architecture": "<id>", ... }
-}
-```
-
-**All issues for this mission must be linked to the project** using `--project-id`.
-
-### Linear CLI Commands
+### Step 0: Bootstrap Linear (run FIRST, before any other work)
 
 ```bash
-# Helper: run any Linear CLI command (always from project root)
-export $(grep -v '^#' .env | xargs) && python "$LINEAR_CLI" <command> [flags]
+# CLI path (relative from project root)
+CLI=".claude/skills/linear-cli/scripts/linear_cli.py"
+
+# 1. Discover team
+python "$CLI" list-teams
+# → extract team id and name from response
+
+# 2. Discover workflow states
+python "$CLI" list-issue-statuses --name "<team-name>"
+
+# 3. Discover labels
+python "$CLI" list-issue-labels --team "<team-name>"
+
+# 4. Create a Project for this mission
+python "$CLI" save-project --input '{"name":"<Mission Short Name>","teamIds":["<team-id>"]}'
 ```
 
-**Create issue:** `create-issue --title "..." --team-id $TEAM_ID --description "..." --priority 2 --label-ids "<label-id>" --state-id "<todo-state-id>" --project-id "<project-id>"`
-
-**Update status:** `update-issue --id "MY-6" --input '{"stateId":"<state-id>"}'`
-
-**Add comment:** `save-comment --input '{"issueId":"<issue-uuid>","body":"[Compass] ..."}'`
-
-**List issues:** `list-issues --team "$TEAM_NAME"`
+Save all IDs to `workspace/.linear-config.json` for reference throughout the session.
+**All issues must be linked to the project** via `--project-id`.
 
 ### Rules
-- **YOU MUST run the Bootstrap step at the very start to discover IDs dynamically.**
-- Every task = Linear issue with acceptance criteria
+- **Run Bootstrap FIRST. No exceptions.**
+- Every task = Linear issue with acceptance criteria, linked to the project
 - Every discussion = Linear comment on the relevant issue
 - Status flow: **Backlog → Todo → In Progress → In Review → Testing → Done**
-- Always include the agent codename in comments (e.g., "[Compass] ...")
-- **YOU MUST create Linear issues before starting any work. No exceptions.**
+- Always prefix comments with agent codename (e.g., `[Compass]`)
+- **Create Linear issues BEFORE starting any work. No exceptions.**
 
 ## Execution Flow
 
