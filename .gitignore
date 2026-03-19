@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.local
+workspace/node_modules/
+workspace/.next/
+workspace/dist/
+*.log
+.DS_Store
+Thumbs.db
+
+# Agent memory is project-specific, keep tracked
+# .claude/agent-memory/
+
+# Local settings (contains API keys)
+.claude/settings.local.json

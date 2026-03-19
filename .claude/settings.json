@@ -1,0 +1,21 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "enabledPlugins": {
+    "Linear-Agent-Skills@Linear-Agent-Skills": true
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "WebFetch",
+      "Agent"
+    ]
+  }
+}
