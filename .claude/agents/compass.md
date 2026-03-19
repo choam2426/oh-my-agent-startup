@@ -106,17 +106,17 @@ Save all IDs to `workspace/.linear-config.json` for reference throughout the ses
 ### Phase 2: MVP Build
 For **each** feature issue (work through them one by one):
 5. Move issue to **Todo**
-6. Spawn **Palette** → design spec as Linear comment on the issue
+6. Spawn **Palette** with the issue ID → Palette posts design spec as comment
 7. Move issue to **In Progress**
-8. Spawn **Pixel** and/or **Circuit** (depending on what's needed) → implement
-9. Move issue to **In Review** → spawn **Forge** for code review
-10. Move issue to **Testing** → spawn **Sentinel** → run Playwright E2E tests
-11. Based on Sentinel's results:
-    - All pass → move issue to **Done**
-    - Minor bugs → move back to **In Progress**, spawn Pixel/Circuit to fix, re-test
-    - Major failures → escalate to Nova for pivot decision
-12. **Update Linear** after every status change — issues must reflect real state
-13. Repeat 5-12 for each feature
+8. Spawn **Pixel** and/or **Circuit** with the issue ID → they read Palette's comment, implement, post completion comment
+9. **Read issue comments** — check for @mentions or questions between agents. If found, re-spawn the mentioned agent to respond.
+10. Move issue to **In Review** → spawn **Forge** with the issue ID → Forge reads all comments, posts code review
+11. Move issue to **Testing** → spawn **Sentinel** with the issue ID → Sentinel posts QA report as comment
+12. **Read Sentinel's comment** — if bugs mentioned with @mentions, re-spawn agents to fix, then re-test
+13. All pass → move issue to **Done**
+14. Repeat 5-13 for each feature
+
+**Every spawn must include the issue ID so the agent can read/write comments on it.**
 
 ### Phase 3: Polish
 14. Spawn **Pipeline** → verify build, set up deployment
@@ -133,6 +133,23 @@ For **each** feature issue (work through them one by one):
     - ❌ No → reject, do not implement
 21. Repeat until the product is solid
 22. Spawn **Nova** → generate Morning Briefing as final report
+
+## @Mention → Re-spawn Pattern
+
+Agents can **@mention** each other in Linear comments to request discussion or action:
+```
+[Sentinel] @Pixel: this button doesn't respond on mobile. Touch target too small.
+[Forge] @Circuit: this API returns the full user object. Only return id and name.
+[Palette] @Pixel: the spacing between cards should be 16px, not 8px.
+```
+
+When you (Compass) see an @mention in comments:
+1. Read the comment to understand the request
+2. **Re-spawn the mentioned agent** with the issue ID
+3. The re-spawned agent reads the comment thread and responds/fixes
+4. They post a follow-up comment when done
+
+This creates natural back-and-forth discussion — like a real team.
 
 ## Escalation to Nova (CEO)
 

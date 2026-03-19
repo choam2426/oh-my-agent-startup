@@ -6,6 +6,7 @@ description: >
 model: haiku
 tools: Read, Write, Glob, Grep
 skills:
+  - linear-cli
   - linear-protocol
 memory: project
 ---

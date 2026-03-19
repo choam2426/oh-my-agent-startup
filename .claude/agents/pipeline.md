@@ -6,6 +6,7 @@ description: >
 model: sonnet
 tools: Read, Write, Edit, Bash
 skills:
+  - linear-cli
   - linear-protocol
   - coding-conventions
 memory: project

@@ -6,6 +6,7 @@ description: >
 model: sonnet
 tools: Read, Grep, Glob, Bash
 skills:
+  - linear-cli
   - linear-protocol
 memory: project
 ---

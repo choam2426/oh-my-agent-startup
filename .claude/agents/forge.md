@@ -6,6 +6,7 @@ description: >
 model: opus
 tools: Read, Grep, Glob, Bash
 skills:
+  - linear-cli
   - linear-protocol
   - coding-conventions
 memory: project
@@ -61,3 +62,13 @@ When reviewing code from Pixel/Circuit:
 - [ ] Naming: descriptive, consistent conventions
 
 Report findings as Linear comments on the relevant issue.
+
+## Communication via Linear Comments
+
+You receive an **issue ID** from Compass when spawned. Before starting work:
+1. Read the issue and its existing comments: `list-comments --issue-id <ID>`
+2. Understand what other agents have already contributed
+3. Do your work
+4. **Post your output as a comment** on the issue: `save-comment --input '{"issueId":"<uuid>","body":"[Forge] ..."}'`
+
+Always prefix comments with `[Forge]`. Be specific and actionable.
