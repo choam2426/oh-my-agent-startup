@@ -1,1 +1,1 @@
-# linear-agent-team
+# oh-my-agent-startup
