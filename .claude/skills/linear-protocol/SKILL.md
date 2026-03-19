@@ -50,8 +50,11 @@ Examples:
 
 ## Workflow
 
-Backlog → Todo → In Progress → Done
+**Backlog → Todo → In Progress → In Review → Testing → Done**
 
-- Move to **Todo** when planned for current cycle
-- Move to **In Progress** when actively working
-- Move to **Done** only after verification (QA pass or review complete)
+- **Backlog**: identified, not yet planned
+- **Todo**: planned for current cycle
+- **In Progress**: agent actively working on it
+- **In Review**: code review by Forge, or spec review by Compass
+- **Testing**: Sentinel running Playwright E2E tests
+- **Done**: reviewed, tested, accepted

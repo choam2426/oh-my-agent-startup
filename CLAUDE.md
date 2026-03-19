@@ -25,7 +25,7 @@ All communication flows through Linear (Linear-Agent-Skills plugin):
 - **Issues** = tasks, specs, decisions, bug reports
 - **Comments** = discussion, feedback, clarification
 - **Labels**: `feature`, `bug`, `design-spec`, `architecture`, `review`, `pivot`, `blocked`, `tech-debt`
-- **Status flow**: Backlog → Todo → In Progress → Done
+- **Status flow**: Backlog → Todo → In Progress → In Review → Testing → Done
 
 ### Issue Format
 ```
@@ -86,8 +86,10 @@ After MVP, agents may propose improvements. Compass validates each:
 
 When a subagent delivers subpar work:
 1. Compass identifies the recurring pattern/mistake
-2. Writes a correction to the agent's memory (`.claude/agent-memory/<agent>/`)
+2. Writes a correction to the agent's memory (`.claude/agent-memory/<agent>/` at project root — NOT inside workspace/)
 3. On next spawn, the agent reads its memory and incorporates the feedback
+
+**IMPORTANT**: Agent memory lives at project root `.claude/agent-memory/`, never inside `workspace/`.
 
 ## Checkpoint State
 

@@ -53,7 +53,10 @@ All communication happens through Linear (Linear-Agent-Skills plugin).
 - Every task = Linear issue with acceptance criteria
 - Every discussion = Linear comment on the relevant issue
 - Labels: `feature`, `bug`, `design-spec`, `architecture`, `review`, `pivot`, `blocked`, `tech-debt`
-- Status: Backlog → Todo → In Progress → Done
+- Status flow: **Backlog → Todo → In Progress → In Review → Testing → Done**
+  - **In Progress**: agent is actively working
+  - **In Review**: Forge reviewing code, or Compass reviewing spec
+  - **Testing**: Sentinel running Playwright tests
 - Always include the agent codename in comments (e.g., "[Compass] ...")
 
 ## Execution Flow
@@ -62,21 +65,31 @@ All communication happens through Linear (Linear-Agent-Skills plugin).
 1. Read and internalize the mission
 2. Spawn **Nova** → get vision, value proposition, and MVP scope
 3. Spawn **Forge** → get architecture decision, tech stack, project structure
-4. Break the mission into user stories → create Linear issues with:
-   - Clear title with label prefix
-   - Context and acceptance criteria
-   - Priority (P0 = must-have, P1 = should-have, P2 = nice-to-have)
+4. Break the mission into **granular user stories** → create **one Linear issue per feature/task**:
+   - Clear title with label prefix (e.g., `[Feature] Add todo item`)
+   - Description with context AND acceptance criteria (checkboxes)
+   - Priority: 1=Urgent, 2=High, 3=Normal, 4=Low
+   - **IMPORTANT**: Create at least 5-10 separate issues, not one big issue.
+     Each issue = one independently testable piece of work.
+     Example for a todo app:
+     - `[Feature] Add new todo item`
+     - `[Feature] Mark todo as complete`
+     - `[Feature] Delete todo item`
+     - `[Feature] Filter todos (all/active/completed)`
+     - `[design-spec] Overall UI layout and design system`
+     - `[architecture] Tech stack decision`
 
 ### Phase 2: MVP Build
 5. Spawn **Palette** → create design specs for P0 features (as Linear issue comments)
 6. Spawn **Pixel** → implement frontend for the highest-priority issue
 7. Spawn **Circuit** → implement backend for the highest-priority issue
-8. After implementation, spawn **Sentinel** → run Playwright E2E tests
-9. Based on Sentinel's results:
-   - All pass → mark issue Done, move to next
-   - Minor bugs → spawn Pixel/Circuit to fix, then re-test
-   - Major failures → escalate to Nova for pivot decision
-10. Repeat 5-9 for each P0 feature
+8. Move issue to **In Review** → spawn **Forge** for code review (if needed)
+9. Move issue to **Testing** → spawn **Sentinel** → run Playwright E2E tests
+10. Based on Sentinel's results:
+    - All pass → move issue to **Done**, move to next
+    - Minor bugs → move back to **In Progress**, spawn Pixel/Circuit to fix, then re-test
+    - Major failures → escalate to Nova for pivot decision
+11. Repeat 5-10 for each feature
 
 ### Phase 3: Polish
 11. Spawn **Pipeline** → set up build and deployment
@@ -104,8 +117,9 @@ Spawn Nova when:
 
 When a subagent delivers poor work:
 1. Identify the specific recurring mistake or bad pattern
-2. Write a concise correction to their agent memory:
-   `workspace/.claude/agent-memory/<agent-name>/MEMORY.md`
+2. Write a concise correction to their agent memory at **project root**:
+   `.claude/agent-memory/<agent-name>/MEMORY.md`
+   **NOT** inside workspace/ — agent memory lives at project root
 3. Be specific: "Always do X" or "Never do Y because Z"
 4. On next spawn, they will read this and improve
 
@@ -120,5 +134,7 @@ After each subagent completes:
 ## Working Directory
 
 All product code goes in `workspace/`. Do NOT modify files outside of `workspace/` except for:
-- `.claude/agent-memory/` (for recursive improvement)
+- `.claude/agent-memory/` at **project root** (for recursive improvement)
 - `workspace/.startup-state.json` (for checkpoint state)
+
+**Never create `.claude/` directories inside workspace/. Agent memory belongs at project root.**
