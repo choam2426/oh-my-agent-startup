@@ -57,11 +57,13 @@ Use the `linear-cli` skill for all Linear operations.
 
 ### Bootstrap (run FIRST)
 Use `linear-cli` skill to:
-1. `list-teams` → get team ID and name
-2. `list-issue-statuses --name <team>` → get state IDs
-3. `list-issue-labels --team <team>` → get label IDs
-4. `save-project` → create a project for this mission
-5. Save all IDs to `workspace/.linear-config.json`
+1. Check `.claude/startup-config.json` — if exists, read team info (skip team discovery)
+2. If no config: `list-teams` → get team ID and name
+3. `list-issue-statuses --name <team>` → get state IDs (including Waiting)
+4. `list-issue-labels --team <team>` → get label IDs (type + area + role)
+5. `save-project` → create a project for this mission
+6. Create milestones: Genesis, MVP, Polish, Evolution (`save-milestone`)
+7. Save all IDs (states, labels, project, milestones) to `workspace/.linear-config.json`
 
 ### Status Updates (CRITICAL — never skip)
 Use `linear-cli` skill `update-issue` to transition status at each step:
@@ -122,27 +124,42 @@ Detect the mode from the mission string:
 
 #### Phase 1: Genesis
 1. Read the mission
-2. Bootstrap Linear (project, discover IDs)
+2. Bootstrap Linear (project, discover IDs, create milestones)
 3. Spawn **Nova** → vision, MVP scope, user value
-4. Spawn **Forge** → architecture, tech stack → writes `workspace/CLAUDE.md`
-5. **VOTE ROUND on architecture**: Spawn **Circuit** and **Palette** to vote on Forge's proposal (see Vote Round Protocol). If 👎 Disagree → debate round. If all 👍 → proceed.
-6. Create **granular Linear issues** (5-10+, one per feature):
+4. Create **PRD Document** on Linear: `create-document --title "PRD: <mission>" --content "<Nova's vision formatted>" --project-id <UUID>`
+5. Spawn **Forge** → architecture, tech stack → writes `workspace/CLAUDE.md`
+6. Create **Architecture Decision Document**: `create-document --title "Architecture: <stack summary>" --content "<Forge's proposal formatted>" --project-id <UUID>`
+7. **VOTE ROUND on architecture**: Spawn **Circuit** and **Palette** to vote on Forge's proposal (see Vote Round Protocol). If 👎 Disagree → debate round. If all 👍 → proceed.
+8. Create **granular Linear issues** (5-10+, one per feature):
    - Title with label: `[Feature] Add todo item`
    - Description + acceptance criteria
    - Priority: 1=Urgent, 2=High, 3=Normal, 4=Low
+   - **Estimate**: Fibonacci 1-13 story points
    - Linked to project
+   - For complex features (frontend+backend), create **sub-issues**:
+     - `[Design] <feature>` (parent-id: feature issue, estimate: 2-3)
+     - `[Backend] <feature>` (parent-id: feature issue, estimate: 5-8)
+     - `[Frontend] <feature>` (parent-id: feature issue, estimate: 5-8)
+     - Set relations: `create-issue-relation --issue-id <backend> --related-issue-id <design> --type blocked_by`
+     - Set relations: `create-issue-relation --issue-id <frontend> --related-issue-id <design> --type blocked_by`
+   - Simple features (single agent) → flat issue, no sub-issues
+9. Post **Genesis Summary** as Document: `create-document --title "Genesis Summary" --content "..." --project-id <UUID>`
+10. Mark Genesis milestone complete: `save-milestone --id <genesis-milestone-id> --input '{"completedAt":"<now>"}'`
 
 #### Phase 2: MVP Build
 For **each** feature issue:
 
-1. **Update status → In Progress** (use `linear-cli`)
-2. Spawn **Palette** with issue ID → posts design spec as comment
-3. Spawn **Forge** with issue ID → reads Palette's spec, posts technical approach + any design pushback
-4. Spawn **Pixel** and/or **Circuit** with issue ID → they read ALL comments (Palette + Forge), implement, post completion
-6. **Update status → In Review** (use `linear-cli`)
-7. Spawn **Forge** with issue ID → code review, reads ALL comments, posts review verdict
-8. **Update status → Testing** (use `linear-cli`)
-9. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report
+1. **Update parent status → In Progress** (use `linear-cli`)
+2. If sub-issues exist: update Design sub-issue → In Progress. If no sub-issues, work on parent directly.
+3. Spawn **Palette** with issue ID → posts design spec as comment
+4. If sub-issues: mark Design sub-issue → Done. Unblocked sub-issues (Backend/Frontend) move from Waiting → In Progress.
+5. Spawn **Forge** with issue ID → reads Palette's spec, posts technical approach + any design pushback
+6. Spawn **Pixel** and/or **Circuit** with issue ID → they read ALL comments (Palette + Forge), implement, post completion
+7. If sub-issues: mark their respective sub-issues → Done. Create QA sub-issue: `[QA] <feature>` (blocked_by Backend + Frontend, estimate: 3-5)
+8. **Update parent status → In Review** (use `linear-cli`)
+9. Spawn **Forge** with issue ID → code review, reads ALL comments, posts review verdict
+10. **Update parent status → Testing** (use `linear-cli`)
+11. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report
 10. **VERIFY-FIX LOOP**: Read Sentinel's QA report verdict:
     - **If PASS** → proceed to Nova review (step 11)
     - **If FAIL** → enter fix loop:
@@ -157,11 +174,14 @@ For **each** feature issue:
 13. If Iterate → Nova explains what to improve, back to step 4
 14. If Cut → Nova explains why, move to Canceled
 
+Post Phase 2: Create **MVP Summary** Document and mark MVP milestone complete.
+
 #### Phase 3: Polish
 15. Spawn **Pipeline** → build, deployment
 16. Spawn **Shield** → security review (creates issues for findings)
 17. Spawn **Scroll** → README.md, documentation
 18. Fix issues found by Shield/Sentinel
+19. Create **Polish Summary** Document and mark Polish milestone complete
 
 #### Phase 4: Scoped Evolution
 19. What's still incomplete within mission scope?
@@ -322,7 +342,7 @@ On startup, ALWAYS check for `workspace/.startup-state.json` first.
 
 ## Observability — Phase Summaries
 
-After each phase completes, post a structured summary comment on the project's architecture issue (the first issue created).
+After each phase completes, create a **Linear Document** attached to the project (not a comment). Use `create-document --title "<Summary Title>" --content "..." --project-id <UUID>`.
 
 **Genesis Summary** (after Phase 1):
 ```

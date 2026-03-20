@@ -10,9 +10,9 @@ description: Linear workspace CLI — issues, projects, documents, teams, users,
 ## Commands
 
 ### Issues
-get-issue --id ID              # ID = identifier (e.g. PRJ-42) or UUID
+get-issue --id ID              # ID = identifier (e.g. PRJ-42) or UUID. Returns parent, children, and relations.
 list-issues [--team NAME] [--state NAME] [--assignee NAME] [--label NAME] [--project NAME] [--priority INT] [--filter JSON]
-create-issue --title STR --team-id UUID [--description MD] [--priority 0-4] [--assignee-id UUID] [--label-ids csv] [--state-id UUID] [--estimate INT] [--due-date YYYY-MM-DD] [--project-id UUID] [--cycle-id UUID]
+create-issue --title STR --team-id UUID [--description MD] [--priority 0-4] [--assignee-id UUID] [--label-ids csv] [--state-id UUID] [--estimate INT] [--due-date YYYY-MM-DD] [--project-id UUID] [--cycle-id UUID] [--parent-id UUID]
 update-issue --id ID --input JSON   # e.g. --input '{"title":"New","priority":2,"stateId":"...","assigneeId":"..."}'
 
 ### Documents
@@ -44,6 +44,11 @@ list-issue-labels [--team NAME]
 create-issue-label --name STR [--color HEX] [--team-id UUID] [--description STR]
 list-project-labels
 
+### Relations
+list-issue-relations --issue-id ID          # shows relations and inverseRelations
+create-issue-relation --issue-id UUID --related-issue-id UUID --type TYPE
+delete-issue-relation --id UUID
+
 ### Workflow
 get-issue-status (--id UUID|--team NAME)
 list-issue-statuses (--team UUID|--name NAME)  # --team expects UUID, --name expects team name
@@ -72,3 +77,5 @@ download-file --url URL [--output PATH]  # download files uploaded in descriptio
 - Workflow state type: backlog|unstarted|started|completed|canceled
 - Errors: JSON to stderr `{"error":"...","details":...}`
 - Workflow: first call list-teams to get team IDs/names, then use them in other commands.
+- Relation types: blocks|blocked_by|related|duplicate
+- Sub-issues: use --parent-id in create-issue to create child issues. get-issue returns parent and children.

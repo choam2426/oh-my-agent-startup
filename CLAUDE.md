@@ -37,8 +37,13 @@ All communication flows through Linear (Linear-Agent-Skills plugin):
 
 - **Issues** = tasks, specs, decisions, bug reports
 - **Comments** = discussion, feedback, clarification
-- **Labels**: `feature`, `bug`, `design-spec`, `architecture`, `review`, `pivot`, `blocked`, `tech-debt`
-- **Status flow**: Backlog → Todo → In Progress → In Review → Testing → Done
+- **Labels**: Type (`feature`, `bug`, `design-spec`, `architecture`, `review`, `pivot`, `blocked`, `tech-debt`, `improvement`) + Area (`frontend`, `backend`, `infra`) + Role (`needs-review`, `needs-qa`)
+- **Status flow**: Backlog → Todo → Waiting → In Progress → In Review → Testing → Done
+- **Sub-Issues**: Complex features split into design/backend/frontend/QA sub-issues
+- **Relations**: `blocks`/`blocked_by` for dependency chains between issues
+- **Documents**: PRD, Architecture Decisions, Phase Summaries as Linear Documents
+- **Milestones**: Genesis / MVP / Polish / Evolution per phase
+- **Estimates**: Fibonacci 1-13 story points per issue
 
 ### Issue Format
 ```
@@ -121,7 +126,8 @@ Compass updates `workspace/.startup-state.json` at **every step transition** (no
   "mission": "...",
   "mode": "full-team|sprint|debate",
   "phase": "genesis|mvp|polish|evolve|complete",
-  "milestone": 1,
+  "milestone": "genesis|mvp|polish|evolve",
+  "milestone_id": "UUID",
   "completed_issues": [],
   "current_work": {
     "issue_id": "MY-72",

@@ -12,6 +12,9 @@ Thumbs.db
 
 # Local settings (contains API keys)
 .claude/settings.local.json
+
+# User-specific startup config (team selection)
+.claude/startup-config.json
 **/__pycache__/
 *.png
 .claude/agent-memory/

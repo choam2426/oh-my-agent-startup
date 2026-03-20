@@ -117,6 +117,9 @@ def cmd_get_issue(args, api_key):
         priority
         project { name }
         team { name key }
+        parent { id identifier title }
+        children { nodes { id identifier title state { name } } }
+        relations { nodes { id type relatedIssue { id identifier title } } }
         updatedAt dueDate estimate url
         attachments { nodes { id title url } }
       }
@@ -172,6 +175,8 @@ def cmd_create_issue(args, api_key):
         inp["projectId"] = args.project_id
     if args.cycle_id:
         inp["cycleId"] = args.cycle_id
+    if args.parent_id:
+        inp["parentId"] = args.parent_id
 
     query = """mutation($input: IssueCreateInput!) {
       issueCreate(input: $input) {
@@ -668,6 +673,47 @@ def cmd_save_milestone(args, api_key):
         handle(graphql_request(query, {"input": inp}, api_key))
 
 
+# --- Relations ---
+
+def cmd_list_issue_relations(args, api_key):
+    query = """query($id: String!) {
+      issue(id: $id) {
+        id identifier title
+        relations {
+          nodes {
+            id type
+            relatedIssue { id identifier title state { name } }
+          }
+        }
+        inverseRelations {
+          nodes {
+            id type
+            issue { id identifier title state { name } }
+          }
+        }
+      }
+    }"""
+    handle(graphql_request(query, {"id": args.issue_id}, api_key))
+
+
+def cmd_create_issue_relation(args, api_key):
+    inp = {"issueId": args.issue_id, "relatedIssueId": args.related_issue_id, "type": args.type}
+    query = """mutation($input: IssueRelationCreateInput!) {
+      issueRelationCreate(input: $input) {
+        success
+        issueRelation { id type issue { identifier } relatedIssue { identifier } }
+      }
+    }"""
+    handle(graphql_request(query, {"input": inp}, api_key))
+
+
+def cmd_delete_issue_relation(args, api_key):
+    query = """mutation($id: String!) {
+      issueRelationDelete(id: $id) { success }
+    }"""
+    handle(graphql_request(query, {"id": args.id}, api_key))
+
+
 # --- Attachments ---
 
 def cmd_get_attachment(args, api_key):
@@ -829,6 +875,7 @@ def build_parser():
     p.add_argument("--due-date")
     p.add_argument("--project-id")
     p.add_argument("--cycle-id")
+    p.add_argument("--parent-id")
 
     p = sub.add_parser("update-issue")
     p.add_argument("--id", required=True)
@@ -940,6 +987,17 @@ def build_parser():
     p.add_argument("--id")
     p.add_argument("--input", required=True)
 
+    p = sub.add_parser("list-issue-relations")
+    p.add_argument("--issue-id", required=True)
+
+    p = sub.add_parser("create-issue-relation")
+    p.add_argument("--issue-id", required=True)
+    p.add_argument("--related-issue-id", required=True)
+    p.add_argument("--type", required=True, choices=["blocks", "blocked_by", "related", "duplicate"])
+
+    p = sub.add_parser("delete-issue-relation")
+    p.add_argument("--id", required=True)
+
     p = sub.add_parser("get-attachment")
     p.add_argument("--id", required=True)
 
@@ -992,6 +1050,9 @@ COMMAND_MAP = {
     "get-milestone": cmd_get_milestone,
     "list-milestones": cmd_list_milestones,
     "save-milestone": cmd_save_milestone,
+    "list-issue-relations": cmd_list_issue_relations,
+    "create-issue-relation": cmd_create_issue_relation,
+    "delete-issue-relation": cmd_delete_issue_relation,
     "get-attachment": cmd_get_attachment,
     "create-attachment": cmd_create_attachment,
     "delete-attachment": cmd_delete_attachment,

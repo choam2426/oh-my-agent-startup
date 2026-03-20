@@ -212,7 +212,6 @@ Sentinel은 단순히 테스트하지 않습니다 — **게이트**합니다. Q
 ```
 oh-my-agent-startup/
 ├── CLAUDE.md                         # 스타트업 프로토콜 & 팀 문화
-├── package.json                      # 프로젝트 메타데이터
 ├── scripts/
 │   └── launch.sh                     # 원커맨드 런처
 │
