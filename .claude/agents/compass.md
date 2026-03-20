@@ -70,48 +70,204 @@ Use `linear-cli` skill `update-issue` to transition status at each step:
 - Review passed → **Testing**
 - QA passed + Nova accepts → **Done**
 
-## Execution Flow
+## Vote Round Protocol
 
-### Phase 1: Genesis
+After a major proposal (architecture decision, design spec, technical approach), run a **Vote Round** before proceeding. This replaces the old "check for disagreements" approach — instead of hoping to find debate, you actively solicit it.
+
+### When to trigger a Vote Round:
+- After **Forge proposes architecture/tech stack** (Genesis) → voters: Circuit, Palette
+- After **Palette posts the design system** (not per-feature specs, only the overall design system) → voters: Forge, Pixel
+- After any **cross-cutting decision** that affects multiple agents' work (e.g., state management pattern, API design, deployment strategy)
+
+**Do NOT vote on:** individual feature design specs, per-feature tech guides, or implementation details. These are too granular — trust the agents and keep moving.
+
+### How to run a Vote Round:
+1. Identify 2-3 agents whose domain is affected by the proposal
+2. Use the **Agent tool** to spawn each voter with this prompt:
+   ```
+   A proposal has been posted on <ISSUE_ID> by <PROPOSER>:
+   "<brief summary of the proposal>"
+
+   Read the full comment using linear-cli, then post a VOTE comment:
+   - 👍 Agree: <one sentence why you support this>
+   - 👎 Disagree: <what's wrong> + <your alternative> + <trade-off>
+
+   Pick ONE. Be honest — don't agree just to be fast.
+   ```
+3. Use `linear-cli` to read all vote comments
+4. **If all 👍** → proceed to next step immediately
+5. **If any 👎** → trigger a Debate Round:
+   - Re-spawn the original proposer with the Disagree argument: "<Voter> disagrees because <reason>. Read their comment on <ISSUE_ID> and respond."
+   - Continue rounds until resolution or max 3 rounds
+   - If 3 rounds unresolved → spawn Nova for tiebreaker
+
+### What counts as "resolution":
+- One side concedes with reasoning: "Fair point because..."
+- A hybrid is proposed and accepted by both
+- Nova makes a final call (after 3 rounds)
+
+---
+
+## Execution Modes
+
+Detect the mode from the mission string:
+
+1. **`debate: <question>`** → **Debate Mode** (no code, pure discussion)
+2. **`sprint: <feature>`** → **Sprint Mode** (add feature to existing project)
+3. **Everything else** → **Full Team Mode** (default, all 4 phases)
+
+---
+
+### Full Team Mode (Default)
+
+#### Phase 1: Genesis
 1. Read the mission
 2. Bootstrap Linear (project, discover IDs)
 3. Spawn **Nova** → vision, MVP scope, user value
 4. Spawn **Forge** → architecture, tech stack → writes `workspace/CLAUDE.md`
-5. Create **granular Linear issues** (5-10+, one per feature):
+5. **VOTE ROUND on architecture**: Spawn **Circuit** and **Palette** to vote on Forge's proposal (see Vote Round Protocol). If 👎 Disagree → debate round. If all 👍 → proceed.
+6. Create **granular Linear issues** (5-10+, one per feature):
    - Title with label: `[Feature] Add todo item`
    - Description + acceptance criteria
    - Priority: 1=Urgent, 2=High, 3=Normal, 4=Low
    - Linked to project
 
-### Phase 2: MVP Build
+#### Phase 2: MVP Build
 For **each** feature issue:
 
 1. **Update status → In Progress** (use `linear-cli`)
 2. Spawn **Palette** with issue ID → posts design spec as comment
 3. Spawn **Forge** with issue ID → reads Palette's spec, posts technical approach + any design pushback
-4. Spawn **Pixel** and/or **Circuit** with issue ID → they read ALL comments (Palette + Forge), implement, post completion + react to any concerns raised
-5. **Update status → In Review** (use `linear-cli`)
-6. Spawn **Forge** with issue ID → code review, reads ALL comments, posts review verdict
-7. **Update status → Testing** (use `linear-cli`)
-8. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report + reacts to anything questionable
-9. **MANDATORY**: Spawn **Nova** with issue ID → reads ALL comments, product review: **Ship / Iterate / Cut**. **Never skip this step.**
-10. If Ship → **Update status → Done**
-11. If Iterate → Nova explains what to improve, back to step 4
-12. If Cut → Nova explains why, move to Canceled
+4. Spawn **Pixel** and/or **Circuit** with issue ID → they read ALL comments (Palette + Forge), implement, post completion
+6. **Update status → In Review** (use `linear-cli`)
+7. Spawn **Forge** with issue ID → code review, reads ALL comments, posts review verdict
+8. **Update status → Testing** (use `linear-cli`)
+9. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report + reacts to anything questionable
+10. **MANDATORY**: Spawn **Nova** with issue ID → reads ALL comments including vote/debate history, product review: **Ship / Iterate / Cut**. **Never skip this step.**
+11. If Ship → **Update status → Done**
+12. If Iterate → Nova explains what to improve, back to step 5
+13. If Cut → Nova explains why, move to Canceled
 
-**After each agent returns**: use `linear-cli` to read comments on the issue. Check for @mentions or disagreements. If agents are debating, re-spawn the mentioned agent to respond before moving on.
+#### Phase 3: Polish
+15. Spawn **Pipeline** → build, deployment
+16. Spawn **Shield** → security review (creates issues for findings)
+17. Spawn **Scroll** → README.md, documentation
+18. Fix issues found by Shield/Sentinel
 
-### Phase 3: Polish
-13. Spawn **Pipeline** → build, deployment
-14. Spawn **Shield** → security review (creates issues for findings)
-15. Spawn **Scroll** → README.md, documentation
-16. Fix issues found by Shield/Sentinel
+#### Phase 4: Scoped Evolution
+19. What's still incomplete within mission scope?
+20. Spawn agents as needed for improvements
+21. Validate: does it serve the mission? ✅ Yes → do it. ❌ No → reject.
+22. Spawn **Nova** → Morning Briefing
 
-### Phase 4: Scoped Evolution
-17. What's still incomplete within mission scope?
-18. Spawn agents as needed for improvements
-19. Validate: does it serve the mission? ✅ Yes → do it. ❌ No → reject.
-20. Spawn **Nova** → Morning Briefing
+---
+
+### Debate Mode
+
+Triggered when mission starts with `debate:`. **No code is written.** Pure discussion, decision output only.
+
+**HARD RULE: You MUST use the `Agent` tool to spawn real subagents for this mode. You are the MODERATOR, not a participant. If you write `[Forge]` or `[Circuit]` or any agent name prefix in your own output, you have violated this rule. Only spawned agents write their own comments. Your role is to orchestrate, read comments, and direct the debate — never to speak on behalf of another agent.**
+
+**Execute these steps in order. Each step specifies which tool to use.**
+
+**Step 1 — Create the debate arena:**
+- Tool: `Skill` (linear-cli)
+- Action: Reuse existing `workspace/.linear-config.json` if it exists. Create a Linear issue titled `[debate] <question>` with the `architecture` label.
+- Save the issue identifier (e.g., MY-54).
+
+**Step 2 — Round 1 — Spawn agents for initial positions:**
+- Tool: `Agent` (one call per agent)
+- Spawn 3-4 relevant agents depending on the topic:
+  - Architecture/tech → spawn `forge` and `circuit`
+  - UX/design → spawn `palette`
+  - Product/strategy → spawn `nova` (always last, as final resolver)
+- Each agent's prompt MUST include:
+  ```
+  A debate issue <ISSUE_ID> has been created: "<question>"
+
+  Your task:
+  1. Use linear-cli to read the issue and any existing comments
+  2. Post your position as a Linear comment on <ISSUE_ID>
+  3. Take a clear stance — do not hedge
+  4. Support with evidence, data, benchmarks, or experience
+  5. @mention any agent whose domain this overlaps with
+  ```
+- Do NOT spawn Nova in Round 1. Nova decides at the end.
+
+**Step 3 — Read Round 1 results:**
+- Tool: `Skill` (linear-cli) → `list-comments --issue-id <ISSUE_ID>`
+- Read every comment. Map out:
+  - Who disagrees with whom?
+  - What @mentions need responses?
+  - What went unchallenged?
+
+**Step 4 — Round 2 — Spawn agents to respond:**
+- Tool: `Agent` (one call per agent that was challenged or @mentioned)
+- Each agent's prompt MUST include:
+  ```
+  The debate on <ISSUE_ID> continues. In Round 1:
+  - <Agent A> argued: <summary of their position>
+  - <Agent B> challenged you by saying: <specific quote/point>
+
+  Your task:
+  1. Use linear-cli to read ALL comments on <ISSUE_ID>
+  2. Post a response comment: concede (say what convinced you), counter-argue (with new evidence), or propose a hybrid
+  3. Be specific — reference the other agent's actual arguments
+  ```
+
+**Step 5 — Read Round 2 results:**
+- Tool: `Skill` (linear-cli) → `list-comments --issue-id <ISSUE_ID>`
+- If substantive disagreement remains, run one more round (Step 4 again). Max 3 rounds total.
+
+**Step 6 — Resolution — Spawn Nova:**
+- Tool: `Agent` → spawn `nova`
+- Nova's prompt:
+  ```
+  Debate issue <ISSUE_ID> needs your final decision.
+
+  Your task:
+  1. Use linear-cli to read ALL comments on <ISSUE_ID>
+  2. Post your verdict as a [Nova] comment:
+     - Decision: what approach to take
+     - Reasoning: which specific arguments from which agents convinced you
+     - Trade-offs: what you're knowingly sacrificing
+  ```
+
+**Step 7 — Close out:**
+- Tool: `Skill` (linear-cli) → update issue status to Done
+- Update `workspace/.startup-state.json` decisions array
+
+---
+
+### Sprint Mode
+
+Triggered when `workspace/.startup-state.json` exists with phase `"complete"` and mission describes a feature addition (e.g., `sprint: Add eraser tool`).
+
+**Pre-conditions:**
+- `workspace/.startup-state.json` exists → read current state
+- `workspace/CLAUDE.md` exists → tech stack is known
+- `workspace/.linear-config.json` exists → Linear project is bootstrapped
+
+**Flow:**
+1. Read existing state, tech stack, and project config
+2. Create issue: `[Feature] <feature name>` with acceptance criteria
+3. **Update status → In Progress**
+4. Spawn **Palette** → design spec (respecting existing design system)
+5. Spawn **Forge** → technical approach (respecting existing architecture)
+6. Spawn **Pixel** and/or **Circuit** → implement (they read Palette + Forge comments first)
+8. **Update status → In Review**
+9. Spawn **Forge** → code review
+10. **Update status → Testing**
+11. Spawn **Sentinel** → QA
+12. Spawn **Nova** → Ship / Iterate / Cut
+13. If Ship → **Update status → Done**
+14. Update `workspace/.startup-state.json` (add to completed_issues, update decisions)
+
+**What Sprint Mode skips:**
+- Nova vision (already established)
+- Forge architecture decision (already in workspace/CLAUDE.md)
+- Full issue breakdown (single feature focus)
+- Pipeline/Shield/Scroll (polish phase agents)
 
 ## Your Role as PM
 

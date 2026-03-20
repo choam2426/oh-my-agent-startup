@@ -49,6 +49,14 @@ Description:
 - Assigned to: <agent codename>
 ```
 
+## Execution Modes
+
+| Mode | Trigger | Description |
+|------|---------|-------------|
+| **Full Team** | Default | All 4 phases. New project from mission. |
+| **Sprint** | `sprint: <feature>` + existing project | Skip Genesis. Add feature to existing project. |
+| **Debate** | `debate: <question>` | No code. Multi-round agent discussion. Decision only. |
+
 ## Execution Phases
 
 ### Phase 1: Genesis
