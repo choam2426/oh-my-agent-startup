@@ -88,18 +88,18 @@ For **each** feature issue:
 
 1. **Update status → In Progress** (use `linear-cli`)
 2. Spawn **Palette** with issue ID → posts design spec as comment
-3. Spawn **Forge** with issue ID → posts technical approach/guide as comment
-4. Spawn **Pixel** and/or **Circuit** with issue ID → they read comments, implement, post completion comment
+3. Spawn **Forge** with issue ID → reads Palette's spec, posts technical approach + any design pushback
+4. Spawn **Pixel** and/or **Circuit** with issue ID → they read ALL comments (Palette + Forge), implement, post completion + react to any concerns raised
 5. **Update status → In Review** (use `linear-cli`)
-6. Spawn **Forge** with issue ID → code review, posts review comment
+6. Spawn **Forge** with issue ID → code review, reads ALL comments, posts review verdict
 7. **Update status → Testing** (use `linear-cli`)
-8. Spawn **Sentinel** with issue ID → QA report as comment
-9. Spawn **Nova** with issue ID → product review: **Ship / Iterate / Cut**
+8. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report + reacts to anything questionable
+9. **MANDATORY**: Spawn **Nova** with issue ID → reads ALL comments, product review: **Ship / Iterate / Cut**. **Never skip this step.**
 10. If Ship → **Update status → Done**
-11. If Iterate → back to step 4 with feedback
-12. If Cut → move to Canceled, explain why
+11. If Iterate → Nova explains what to improve, back to step 4
+12. If Cut → Nova explains why, move to Canceled
 
-**After each agent returns**: read their Linear comment to confirm and decide next step.
+**After each agent returns**: use `linear-cli` to read comments on the issue. Check for @mentions or disagreements. If agents are debating, re-spawn the mentioned agent to respond before moving on.
 
 ### Phase 3: Polish
 13. Spawn **Pipeline** → build, deployment

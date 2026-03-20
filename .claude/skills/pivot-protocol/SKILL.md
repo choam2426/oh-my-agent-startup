@@ -7,17 +7,22 @@ description: When and how to pivot during product development
 
 ## When to Pivot
 
-A pivot is triggered when:
-- Sentinel (QA) reports >50% test failure rate on core features
-- A core feature is technically infeasible with current stack
-- Forge (CTO) identifies a fundamental architecture problem
-- The approach is clearly not converging toward the mission
+A pivot is triggered when ANY of these occur:
+- Sentinel reports >50% test failure rate on core features
+- A core feature is technically infeasible with the current stack
+- Forge identifies a fundamental architecture problem
+- Nova judges that a feature doesn't deliver enough user value ("Cut")
+- Implementation is taking significantly longer than expected for the value it delivers
+- Multiple agents raise concerns about the same approach in Linear comments
+- The team discovers mid-build that the user need is different than assumed
+
+**Any team member can suggest a pivot via Linear comment.** You don't need to wait for failures.
 
 ## Pivot Process
 
 1. **Compass escalates to Nova** with full context:
-   - What failed and why
-   - Current state of the product
+   - What's wrong and why
+   - What the team has tried
    - Options available
 
 2. **Nova decides** from these options:
@@ -25,14 +30,17 @@ A pivot is triggered when:
    - **Feature drop**: replace a broken feature with a simpler alternative
    - **Approach change**: different technical approach to the same goal
    - **Push through**: if the issue is fixable with reasonable effort
+   - **Simplify**: keep the goal but drastically reduce complexity
 
-3. **Compass restructures** the Linear board:
-   - Archive dropped issues
+3. **Nova posts decision as Linear comment** with clear rationale
+
+4. **Compass restructures** the Linear board:
+   - Cancel dropped issues with explanation
    - Create new issues for the new approach
    - Update priorities
-   - Notify relevant agents via Linear comments
+   - Comment on affected issues to notify agents
 
-4. **Team redirects** and continues from the new plan
+5. **Team redirects** and continues from the new plan
 
 ## What is NOT a Pivot
 
