@@ -1,0 +1,35 @@
+{
+  "name": "oh-my-agent-startup",
+  "owner": {
+    "name": "choam2426",
+    "email": "choam2426@gmail.com"
+  },
+  "metadata": {
+    "description": "AI agent team that builds web apps from a single mission",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "oh-my-agent-startup",
+      "source": ".",
+      "description": "An AI agent team that builds web apps from a single mission. 10 agents debate, design, build, review, test, and deploy — all decisions tracked in Linear.",
+      "version": "0.1.0",
+      "author": {
+        "name": "choam2426",
+        "email": "choam2426@gmail.com"
+      },
+      "category": "development",
+      "keywords": [
+        "ai-startup",
+        "multi-agent",
+        "orchestration",
+        "product-development",
+        "linear",
+        "harness"
+      ],
+      "homepage": "https://github.com/choam2426/oh-my-agent-startup",
+      "repository": "https://github.com/choam2426/oh-my-agent-startup",
+      "license": "Apache-2.0"
+    }
+  ]
+}
