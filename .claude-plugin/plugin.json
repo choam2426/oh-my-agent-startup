@@ -1,0 +1,40 @@
+{
+  "name": "oh-my-agent-startup",
+  "version": "0.1.0",
+  "description": "An AI agent team that builds web apps from a single mission. 10 agents debate, design, build, review, test, and deploy — all decisions tracked in Linear.",
+  "author": {
+    "name": "choam2426",
+    "email": "choam2426@gmail.com"
+  },
+  "homepage": "https://github.com/choam2426/oh-my-agent-startup",
+  "repository": "https://github.com/choam2426/oh-my-agent-startup",
+  "license": "Apache-2.0",
+  "keywords": [
+    "ai-startup",
+    "multi-agent",
+    "orchestration",
+    "product-development",
+    "linear",
+    "harness"
+  ],
+  "agents": "./.claude/agents/",
+  "skills": "./.claude/skills/",
+  "settings": {
+    "env": {
+      "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+    },
+    "permissions": {
+      "allow": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "Glob",
+        "Grep",
+        "WebSearch",
+        "WebFetch",
+        "Agent"
+      ]
+    }
+  }
+}
