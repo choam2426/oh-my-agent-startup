@@ -142,11 +142,20 @@ For **each** feature issue:
 6. **Update status → In Review** (use `linear-cli`)
 7. Spawn **Forge** with issue ID → code review, reads ALL comments, posts review verdict
 8. **Update status → Testing** (use `linear-cli`)
-9. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report + reacts to anything questionable
-10. **MANDATORY**: Spawn **Nova** with issue ID → reads ALL comments including vote/debate history, product review: **Ship / Iterate / Cut**. **Never skip this step.**
-11. If Ship → **Update status → Done**
-12. If Iterate → Nova explains what to improve, back to step 5
-13. If Cut → Nova explains why, move to Canceled
+9. Spawn **Sentinel** with issue ID → QA, reads ALL comments, posts report
+10. **VERIFY-FIX LOOP**: Read Sentinel's QA report verdict:
+    - **If PASS** → proceed to Nova review (step 11)
+    - **If FAIL** → enter fix loop:
+      a. Identify fixer (Pixel for frontend bugs, Circuit for backend bugs)
+      b. Spawn fixer with: issue ID + Sentinel's bug report + specific bugs to fix
+      c. After fix, re-spawn Sentinel to re-test
+      d. If PASS → proceed to Nova. If FAIL → repeat (max 3 loops)
+      e. After 3 failed loops → spawn Forge for architectural review. If still unresolvable → trigger Pivot Protocol
+    - **Completion = Sentinel says PASS, not "code is written"**
+11. **MANDATORY**: Spawn **Nova** with issue ID → reads ALL comments including vote/debate/QA history, product review: **Ship / Iterate / Cut**. **Never skip this step.**
+12. If Ship → **Update status → Done**
+13. If Iterate → Nova explains what to improve, back to step 4
+14. If Cut → Nova explains why, move to Canceled
 
 #### Phase 3: Polish
 15. Spawn **Pipeline** → build, deployment
@@ -259,9 +268,10 @@ Triggered when `workspace/.startup-state.json` exists with phase `"complete"` an
 9. Spawn **Forge** → code review
 10. **Update status → Testing**
 11. Spawn **Sentinel** → QA
-12. Spawn **Nova** → Ship / Iterate / Cut
-13. If Ship → **Update status → Done**
-14. Update `workspace/.startup-state.json` (add to completed_issues, update decisions)
+12. **VERIFY-FIX LOOP**: Same as Full Team — if Sentinel FAIL, fix → re-test → max 3 loops
+13. Spawn **Nova** → Ship / Iterate / Cut
+14. If Ship → **Update status → Done**
+15. Update `workspace/.startup-state.json` (add to completed_issues, update decisions)
 
 **What Sprint Mode skips:**
 - Nova vision (already established)
@@ -287,3 +297,56 @@ When a subagent delivers poor work:
 3. They read this on next spawn
 
 **Agent memory lives at project root `.claude/agent-memory/`, NEVER inside workspace/.**
+
+## Recovery Protocol
+
+On startup, ALWAYS check for `workspace/.startup-state.json` first.
+
+**If `current_work` exists and has a non-null `step`:**
+- The previous session was interrupted mid-work
+- Resume from the `current_work.step`, not from the beginning
+- Use `linear-cli` to read comments on `current_work.issue_id` to see what was already done
+- Skip agents listed in `current_work.agents_completed`
+- Spawn the agent listed in `current_work.awaiting`
+
+**If `phase` is `"complete"` and no `current_work`:**
+- If mission matches → Sprint mode (feature addition)
+- If different mission → Full Team mode (start fresh)
+
+**State update discipline:** Update `workspace/.startup-state.json` at EVERY step transition:
+- Before spawning Palette → `"step": "design", "awaiting": "palette"`
+- Before spawning Pixel/Circuit → `"step": "implement", "awaiting": "pixel"`
+- Before spawning Sentinel → `"step": "testing", "awaiting": "sentinel"`
+- Before spawning Nova → `"step": "review", "awaiting": "nova"`
+- After issue Done → clear `current_work`, add issue to `completed_issues`
+
+## Observability — Phase Summaries
+
+After each phase completes, post a structured summary comment on the project's architecture issue (the first issue created).
+
+**Genesis Summary** (after Phase 1):
+```
+[Compass] 📊 Genesis Summary
+- Vision: <Nova's core value prop in one line>
+- Stack: <Forge's tech choices>
+- Vote: <who voted, result, any Disagrees and how resolved>
+- Issues created: <count>
+- Key decisions: <list>
+```
+
+**MVP Summary** (after Phase 2):
+```
+[Compass] 📊 MVP Summary
+- Features shipped: <count> / <total>
+- Verify-fix loops triggered: <count> (which issues)
+- Debates triggered: <count> (which issues, resolution)
+- Nova verdicts: <Ship/Iterate/Cut counts>
+```
+
+**Polish Summary** (after Phase 3):
+```
+[Compass] 📊 Polish Summary
+- Security issues: <count by severity>
+- Bugs fixed: <count>
+- Documentation: <what was written>
+```

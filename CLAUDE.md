@@ -114,17 +114,28 @@ When a subagent delivers subpar work:
 
 ## Checkpoint State
 
-After each major step, Compass updates `workspace/.startup-state.json`:
+Compass updates `workspace/.startup-state.json` at **every step transition** (not just phase changes). This enables session recovery if interrupted.
+
 ```json
 {
   "mission": "...",
-  "phase": "mvp|polish|evolve",
+  "mode": "full-team|sprint|debate",
+  "phase": "genesis|mvp|polish|evolve|complete",
   "milestone": 1,
   "completed_issues": [],
-  "in_progress": [],
-  "decisions": []
+  "current_work": {
+    "issue_id": "MY-72",
+    "issue_title": "[Feature] Add expense",
+    "step": "design|implement|review|testing|nova-review",
+    "agents_completed": ["palette", "forge"],
+    "awaiting": "pixel"
+  },
+  "decisions": [],
+  "linear_config": "workspace/.linear-config.json"
 }
 ```
+
+`current_work` is cleared when the issue moves to Done. On session restart, Compass reads this file and resumes from the recorded step.
 
 ## Tech Stack
 
