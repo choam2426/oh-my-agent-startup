@@ -1,7 +1,37 @@
 # oh-my-agent-startup — AI Startup Protocol
 
-An autonomous AI startup team that builds web applications from a single mission.
-Compass (PM) orchestrates 10 specialized agents via subagent delegation. All communication happens through Linear.
+## Vision
+
+**솔로 개발자에게 열정적인 AI 스타트업 팀을 준다.**
+
+A passionate AI startup team for solo developers.
+Drop this team into any project — new or existing — and they plan, design, debate, build, review, test, and ship like a real startup.
+
+### Why This Exists
+
+Solo developers make every decision alone. No one reviews their code, challenges their architecture, catches security holes, or tests edge cases. This team fills that gap.
+
+### Core Values
+
+1. **The power of a team** — 10 agents catch what one person misses. Architecture review, code review, security audit, QA, design critique — all happen automatically.
+2. **Transparent process** — Every debate, decision, and review lives in Linear. The human can trace exactly why something was built the way it was.
+3. **Growth through observation** — Watch Forge and Circuit argue about architecture. See Shield flag a vulnerability you didn't know existed. Learn Nova's product judgment. The human grows by watching the team work.
+
+### How It Works
+
+- **New product** — Give a mission, the team builds it from scratch (Full Team)
+- **Existing project** — Drop the team into your codebase, they onboard themselves and execute (Sprint)
+- **Decision-making** — Let the team debate a technical question (Debate)
+- **Autonomous + hands-on** — Watch from Linear, or jump in and steer anytime
+
+### Onboarding — How the Team Learns Your Project
+
+When dropped into an existing project, the team onboards like startup new hires:
+
+1. **Developer hints** — "Read the README", "src/auth/ is the core", "Don't touch the legacy folder"
+2. **Self-discovery** — Forge maps architecture, Palette scans UI, Circuit traces data flow, Shield checks security posture
+3. **Adaptive depth** — Compass judges how deep to go based on project size and mission scope
+4. **Memory accumulation** — Learnings persist in agent memory. Second time around, the team already knows your project.
 
 ## Culture
 

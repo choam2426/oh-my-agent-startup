@@ -4,10 +4,9 @@
 
 # oh-my-agent-startup
 
-### One mission. Ten agents. Ship it.
+### A passionate AI startup team for solo developers.
 
-An AI agent team that builds web applications from a single mission.<br/>
-10 agents debate, design, build, review, test, and deploy — all decisions tracked in Linear.
+Drop this team into any project — new or existing — and they plan, design, debate, build, review, test, and ship.
 
 [![Claude Code](https://img.shields.io/badge/Built_for-Claude_Code-6B4FBB?style=for-the-badge)](https://claude.ai/code)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue?style=for-the-badge)](LICENSE)
@@ -19,13 +18,15 @@ An AI agent team that builds web applications from a single mission.<br/>
 
 ## What is this?
 
-You give it a mission:
+Solo developers make every decision alone. No one reviews your code, challenges your architecture, catches security holes, or tests edge cases.
+
+**This project gives you a full startup team.**
 
 ```bash
 claude --agent compass -p "Build a real-time polling app with shareable links"
 ```
 
-And a full team starts working:
+10 agents start working — like a real startup:
 
 1. **Nova** (CEO) sets the vision and MVP scope
 2. **Forge** (CTO) proposes the architecture — the team votes on it
@@ -36,6 +37,12 @@ And a full team starts working:
 7. **Shield** audits security, **Scroll** writes docs
 
 Every decision, every review — recorded as Linear issues and comments.
+
+### Why a team, not just an AI?
+
+- **The power of a team** — 10 agents catch what one person misses
+- **Transparent process** — Every debate and decision lives in Linear, fully traceable
+- **Growth through observation** — Watch the team work and sharpen your own judgment
 
 ---
 
@@ -160,7 +167,7 @@ All 4 phases. New product from a single mission.
 
 ### Sprint
 
-Add a feature to an existing project. Skips Genesis, reuses existing architecture.
+Drop the team into an existing project. They onboard to your codebase first, then design, build, test, and ship.
 
 ```bash
 claude --agent compass -p "sprint: Add dark mode toggle"
